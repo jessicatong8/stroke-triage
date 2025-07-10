@@ -41,9 +41,9 @@ class States(enum.IntEnum):
 def time_limit_tpa():
     return 270
 
-
+# updated to 24 hr time limit
 def time_limit_evt():
-    return 360
+    return 1440
 
 
 def door_to_needle_primary(base_case=False):
