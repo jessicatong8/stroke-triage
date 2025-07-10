@@ -31,12 +31,12 @@ SETTINGS = {
     },
     'Base Case Options': {
         'sex': constants.Sex.FEMALE,
-        'age': 65,
-        'RACE': 7,
-        'time_since_symptoms': 45,
-        'time_to_primary': 30,
-        'time_to_comprehensive': 60,
-        'transfer_time': 45
+        'age': 70,
+        'RACE': 2,
+        'time_since_symptoms': 120,
+        'time_to_primary': 22,
+        'time_to_comprehensive': 37,
+        'transfer_time': 21
     },
     'Random Set Options': {
         'Number of Random Sets': 15,
@@ -165,12 +165,20 @@ def print_probabilistic_model_output(arguments):
     # slightly different ...
 
     percents = {}
+    p_good = {}
+    p_tpa = {}
+    p_evt = {}
+    
 
     for strategy in STRATEGIES:
         if comparison:
             percents[strategy] = [0, 0, 0]
         else:
             percents[strategy] = 0
+            p_good[strategy] = 0
+            p_tpa[strategy] = 0
+            p_evt[strategy] = 0
+
 
     multiplier = 1 / SETTINGS['Probabilistic Model']['evals per set'] * 100
 
@@ -180,7 +188,27 @@ def print_probabilistic_model_output(arguments):
             percents[result[1]['Optimal Location']][1] += multiplier
             percents[result[2]['Optimal Location']][2] += multiplier
         else:
+            for strategy in STRATEGIES:
+                p_good[strategy] += result['p_good'][strategy]
+                p_tpa[strategy] += result['p_tpa'][strategy]
+                p_evt[strategy] += result['p_evt'][strategy]
+            # p_good[strategy] += result['p_good'][strategy]
+            # print(result['p_good'][strategy])
+            # print(p_good[strategy])
             percents[result['Optimal Location']] += multiplier
+    
+    for strategy in p_good:
+        p_good[strategy] =  float(round(p_good[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+    for strategy in p_tpa:
+        p_tpa[strategy] =  float(round(p_tpa[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+
+    for strategy in p_evt:
+        p_evt[strategy] =  float(round(p_evt[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+
+
+    print("p_good_outcome: ", p_good)
+    print("p_tpa: ", p_tpa)
+    print("p_EVT: ", p_evt)
 
     if comparison:
         for strategy in STRATEGIES:
@@ -228,6 +256,21 @@ def run_model(arguments):
             'Comprehensive': 0,
             'Drip and Ship': 'N/A'
         },
+        'p_good':{
+            'Primary': 0,
+            'Comprehensive': 0,
+            'Drip and Ship': 'N/A',
+        },
+         'p_tpa':{
+            'Primary': 0,
+            'Comprehensive': 0,
+            'Drip and Ship': 'N/A',
+        },
+         'p_evt':{
+            'Primary': 0,
+            'Comprehensive': 0,
+            'Drip and Ship': 'N/A',
+        }
     }
 
     # Early exit if the location is based only on RACE cutoff (because
@@ -244,6 +287,11 @@ def run_model(arguments):
         strategies = STRATEGIES
     for strategy in strategies:
         ischemic_outcomes = ais_model.get_ais_outcomes(strategy)
+        # print(ischemic_outcomes)
+        results['p_good'][strategy] = ischemic_outcomes['p_good']
+        results['p_tpa'][strategy] = ischemic_outcomes['p_tpa']
+        results['p_evt'][strategy] = ischemic_outcomes['p_evt']
+
         markoved_population = cohort.Population(ischemic_outcomes, strategy)
         results['Costs'][strategy] = markoved_population.costs
         results['QALYs'][strategy] = markoved_population.qalys
@@ -283,7 +331,7 @@ def setup_output_file(output_file):
         output_file.write(item + ',')
     output_file.write(output_variables[-1] + '\n')
 
-
+#running probabilitstic model model
 def run_probabilistic_set(argument_set):
     prob_settings = SETTINGS['Probabilistic Model']
     if prob_settings['Compare Times vs. LVO'] is True:
@@ -307,7 +355,7 @@ def run_probabilistic_set(argument_set):
         results = run_model(argument_set)
     return results
 
-
+#loop through to runmodel 1000 times (evals per set)
 def run_argument_set(argument_set):
     # Alias because annoying to keep typing
     prob_settings = SETTINGS['Probabilistic Model']
@@ -315,12 +363,14 @@ def run_argument_set(argument_set):
         while (prob_settings['current_set_counter'] <
                prob_settings['evals per set']):
             results = run_probabilistic_set(argument_set)
+            # print(results)
             prob_settings['current_set_counter'] += 1
             prob_settings['Results'].append(results)
         print_probabilistic_model_output(argument_set)
     else:
         results = run_model(argument_set)
         print_model_output(results, argument_set)
+    # print(prob_settings['Results'])
 
 
 def run():
