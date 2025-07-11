@@ -91,6 +91,7 @@ class IschemicModel(object):
                                  arguments['time_to_comprehensive'] +
                                  constants.Times.door_to_intra_arterial)
 
+# this seems to be where transfer DIDO time is calculated
         self.onset_evt_ship = (
             arguments['time_since_symptoms'] + arguments['time_to_primary'] +
             constants.Times.door_needle_primary + arguments['transfer_time'] +
