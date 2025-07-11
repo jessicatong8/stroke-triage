@@ -1,2 +1,2 @@
-sex ,age ,RACE ,time_since_symptoms ,time_to_primary ,time_to_comprehensive ,transfer_time ,Percent Primary ,Percent Comprehensive ,Percent Drip and Ship ,Horizon
-  1 , 65 ,   7 ,                 45 ,             30 ,                   60 ,           45 ,              0 ,    64.00000000000064 ,    36.00000000000024 ,lifetime
+sex,age,RACE,time_since_symptoms,time_to_primary,time_to_comprehensive,transfer_time,Percent Primary,Percent Comprehensive,Percent Drip and Ship,Horizon
+1,70,2,120,22,37,21,0,43.60000000000035,56.40000000000053,lifetime
