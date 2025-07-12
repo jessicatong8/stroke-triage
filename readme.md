@@ -1,29 +1,42 @@
-This code is provided as supplementary material to our submission of:
+# EMS Visualization and Travel Time Analysis
+
+This project visualizes emergency medical service (EMS) stroke incidents and visualizes a mathematical model's recommendations for transport strategy.
+
+The underlying model is from
 
 **Optimization of Prehospital Triage of Patients with Suspected Ischemic Stroke: Results of a Mathematical Model**
 
-*Ali A, Zachrison KS, Eschenfeldt PC, Schwamm LH, Hur C*
+_Ali A, Zachrison KS, Eschenfeldt PC, Schwamm LH, Hur C_
 
-Our work is licensed with an MIT license and we welcome contributions, suggestions, and feedback. In addition, it has been accepted for publication in *Stroke*, a peer-reviewed journal of the American Heart Association.
+## Setup
 
-Code was written and is maintained by Ayman Ali and Patrick Eschenfeldt.
+1. Install dependencies:
 
-For a more user-friendly interaction with the model, please visit the following website:
+```bash
+pip install -r requirements.txt
+```
 
-http://stroketransport.mgh-ita.org
+## Usage
 
----
+### Run the Streamlit App
 
-The code is written in Python 3.6* and requires the following dependencies to run:
+```bash
+streamlit run simulated_triage.py
+```
 
-1) numpy
-2) tqdm (for progress bars)
+This will:
 
----
+- Load the preprocessed travel time data
+- Load the preprocessed model outputs for stroke incident transport strategy recommendations
+- Display an interactive map with stroke incidents (circles) and hospitals (squares) color coded by the model's recommended transport strategy
 
-Special mentions:
+## Files
 
-Formatted with YAPF, which is awesome. You can access it here:
-
-https://github.com/google/yapf
-
+- `simulated_triage.py` - Main Streamlit application
+- `input.csv` - model input with incident data, travel times, and some arbitrary assumptions on patient age, LKW, and RACE score
+- `output.csv` - model output with the recommended transport strategy
+- `ems-strokes-traveltimes.csv` - EMS stroke incidents with travel time to closest comprehensive and primary hospitals
+- `travel_times.csv` - Generated travel time matrix
+- `closest_hospitals.csv` - Generated closest hospital assignments
+- `allems-strokes.csv` - EMS incident data filtered to only Strokes (from [WPRDC](https://data.wprdc.org/dataset/allegheny-county-911-dispatches-ems-and-fire))
+- `hospitals.csv` - Hospital location data (adapted from [WPRDC](https://data.wprdc.org/dataset/hospitals) but added a new Type column for Primary vs Comprehensive)

@@ -7,6 +7,9 @@ import constants
 import create_random_sets as random_sets
 import optimal_strategy
 import tqdm
+import pandas as pd
+import numpy as np
+
 '''
 
 For default probabilistic model, turn on random times and
@@ -116,7 +119,7 @@ STRATEGIES = ['Primary', 'Comprehensive', 'Drip and Ship']
 
 
 def read_input_file():
-    f = open('input/scenarios.csv', 'r')
+    f = open('input/scenarios_default.csv', 'r')
     # Parse header
     f.readline()
     strategies = []
@@ -137,8 +140,32 @@ def read_input_file():
         strategy['time_to_comprehensive'] = float(values[6])
         strategy['transfer_time'] = float(values[7])
         strategies.append(strategy)
+        print(strategies)
 
     return strategies
+
+# set up data frames for input patients and writing output, these maintain location information
+df_input = pd.read_csv('input/scenarios.csv')
+# df_input = df_input.sample(n=10, random_state=47)
+df_output = df_input.copy(deep=True)
+df_output['Percent Primary'] = np.nan
+df_output['Percent Comprehensive'] = np.nan
+df_output['Percent Drip and Ship'] = np.nan
+
+def read_input_file_new():
+
+    df_renamed = df_input.rename(columns={'CSC_travel_time_minutes': 'time_to_comprehensive', 'PSC_travel_time_minutes':'time_to_primary'})
+    strategies = df_renamed[['sex', 'age', 'RACE', 'time_since_symptoms','time_to_primary','time_to_comprehensive','transfer_time']].to_dict(orient='records')
+    for strat in strategies:
+        if strat['sex'] == 'female':
+            strat['sex'] = constants.Sex.FEMALE
+        else:
+            strat['sex'] = constants.Sex.MALE
+
+    # print(strategies)
+    # print(len(strategies))
+    return strategies
+
 
 
 def print_model_output(results, arguments):
@@ -182,6 +209,7 @@ def print_probabilistic_model_output(arguments):
 
     multiplier = 1 / SETTINGS['Probabilistic Model']['evals per set'] * 100
 
+    # pt_counter = 0
     for result in SETTINGS['Probabilistic Model']['Results']:
         if comparison:
             percents[result[0]['Optimal Location']][0] += multiplier
@@ -196,19 +224,23 @@ def print_probabilistic_model_output(arguments):
             # print(result['p_good'][strategy])
             # print(p_good[strategy])
             percents[result['Optimal Location']] += multiplier
+        # print(pt_counter)
+        # print(percents)
+        # # df_output[df_output.loc[df_output.index[pt_counter], 'col2']]
+        # pt_counter += 1
     
-    for strategy in p_good:
-        p_good[strategy] =  float(round(p_good[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
-    for strategy in p_tpa:
-        p_tpa[strategy] =  float(round(p_tpa[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+    # for strategy in p_good:
+    #     p_good[strategy] =  float(round(p_good[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+    # for strategy in p_tpa:
+    #     p_tpa[strategy] =  float(round(p_tpa[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
 
-    for strategy in p_evt:
-        p_evt[strategy] =  float(round(p_evt[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+    # for strategy in p_evt:
+    #     p_evt[strategy] =  float(round(p_evt[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
 
 
-    print("p_good_outcome: ", p_good)
-    print("p_tpa: ", p_tpa)
-    print("p_EVT: ", p_evt)
+    # print("p_good_outcome: ", p_good)
+    # print("p_tpa: ", p_tpa)
+    # print("p_EVT: ", p_evt)
 
     if comparison:
         for strategy in STRATEGIES:
@@ -221,6 +253,16 @@ def print_probabilistic_model_output(arguments):
         for strategy in STRATEGIES:
             OUTPUT_FILE.write(str(percents[strategy]) + ',')
     OUTPUT_FILE.write(SETTINGS['Horizon'] + '\n')
+
+    # a stupid way to match output with the correct row of the input df by finding the first NAN value, but it works
+
+    first_nan_index = df_output['Percent Primary'].isna().idxmax()  # Gets the index of the first NaN
+
+    df_output.loc[first_nan_index, 'Percent Primary'] = percents['Primary']
+    df_output.loc[first_nan_index, 'Percent Comprehensive'] = percents['Comprehensive']
+    df_output.loc[first_nan_index, 'Percent Drip and Ship'] = percents['Drip and Ship']
+
+    # print(percents)
 
     # Prepare the probabilstic model results for the next set
     SETTINGS['Probabilistic Model']['Results'].clear()
@@ -392,11 +434,15 @@ def run():
         )
     elif SETTINGS['Simulation Type'] == 'Input File':
         OUTPUT_FILE = open('output/input_file_scenarios.csv', 'w')
-        arguments = tqdm.tqdm(read_input_file())
+        arguments = tqdm.tqdm(read_input_file_new())
 
     setup_output_file(OUTPUT_FILE)
     for argument_set in arguments:
         run_argument_set(argument_set)
+    # Save to CSV
+    output_file = 'output/output.csv'
+    df_output.to_csv(output_file, index=False)
+    print("wrote df_output to csv file")  
 
 
 if __name__ == '__main__':
