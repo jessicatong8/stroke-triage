@@ -6,17 +6,10 @@ import folium
 from streamlit_folium import st_folium
 
 # --- Load CSV files ---
-df = pd.read_csv("EMS-data/allems-strokes.csv")
 hospitals = pd.read_csv("EMS-data/hospitals.csv")
 simulated_triage = pd.read_csv("output/output.csv")
 
 # --- Data cleaning ---
-df = df[df["description_short"] == "STROKE"]
-
-df = df.rename(columns={
-    "census_block_group_center__y": "latitude",
-    "census_block_group_center__x": "longitude"
-})
 
 hospitals = hospitals.rename(columns={
     "Y": "latitude",
@@ -24,8 +17,9 @@ hospitals = hospitals.rename(columns={
 })
 
 simulated_triage = simulated_triage.rename(columns = {'origin_lat':'latitude', 'origin_lon':'longitude'})
+print(simulated_triage.head(5))
+print(simulated_triage.columns)
 
-combined_df = pd.concat([df, hospitals], ignore_index=True)
 
 # calculate color for strokes by how close to 50% the transport decision is (decision confidence)
 def get_color(row):
@@ -79,15 +73,28 @@ hospital_layer = folium.FeatureGroup(name='Hospitals')
 
 # Add simulated triage points as colored circles
 for _, row in simulated_triage.iterrows():
-    folium.CircleMarker(
-        location=[row['latitude'], row['longitude']],
-        radius=4,
-        color=row['hex_color'],
-        fill=True,
-        fill_color=row['hex_color'],
-        fill_opacity=0.7,
-        popup=f"Comp: {row['Percent Comprehensive']:.1f}%, Drip: {row['Percent Drip and Ship']:.1f}%",
-    ).add_to(triage_layer)
+    try:
+        lat = row['latitude']
+        lon = row['longitude']
+        comp = row['Percent Comprehensive']
+        drip = row['Percent Drip and Ship']
+        hex_color = row['hex_color']
+
+        folium.CircleMarker(
+            location=[lat, lon],
+            radius=4,
+            color=hex_color,
+            fill=True,
+            fill_color=hex_color,
+            fill_opacity=0.7,
+            popup=f"Comp: {comp:.1f}%, Drip: {drip:.1f}%",
+        ).add_to(triage_layer)
+        # print("success")
+        
+    except KeyError as e:
+        print(f"Skipping row due to missing column: {e}")
+    except Exception as e:
+        print(f"Skipping row due to unexpected error: {e}")
 
 for _, row in hospitals.iterrows():
     folium.RegularPolygonMarker(
