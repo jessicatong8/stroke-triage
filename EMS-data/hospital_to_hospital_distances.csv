@@ -1,0 +1,61 @@
+From,To,primary_hospital_name,primary_lat,primary_lon,comprehensive_hospital_name,comprehensive_lat,comprehensive_lon,travel_time_minutes,distance_km,method
+UPMC Children's,UPMC Mercy,UPMC Children's,40.467315,-79.95359,UPMC Mercy,40.436137,-79.985285,9.414,7.060499999999999,openroute
+UPMC Children's,UPMC Presbyterian,UPMC Children's,40.467315,-79.95359,UPMC Presbyterian,40.441544,-79.959356,5.718333333333334,4.28875,openroute
+UPMC Children's,Allegheny General Hospital,UPMC Children's,40.467315,-79.95359,Allegheny General Hospital,40.45701,-80.003724,10.483833333333333,7.862875,openroute
+UPMC Magee,UPMC Mercy,UPMC Magee,40.436889,-79.9607,UPMC Mercy,40.436137,-79.985285,4.188833333333333,3.141625,openroute
+UPMC Magee,UPMC Presbyterian,UPMC Magee,40.436889,-79.9607,UPMC Presbyterian,40.441544,-79.959356,1.7328333333333332,1.299625,openroute
+UPMC Magee,Allegheny General Hospital,UPMC Magee,40.436889,-79.9607,Allegheny General Hospital,40.45701,-80.003724,10.818666666666667,8.114,openroute
+UPMC McKeesport,UPMC Mercy,UPMC McKeesport,40.351343,-79.849457,UPMC Mercy,40.436137,-79.985285,30.052666666666667,22.5395,openroute
+UPMC McKeesport,UPMC Presbyterian,UPMC McKeesport,40.351343,-79.849457,UPMC Presbyterian,40.441544,-79.959356,29.34,22.005,openroute
+UPMC McKeesport,Allegheny General Hospital,UPMC McKeesport,40.351343,-79.849457,Allegheny General Hospital,40.45701,-80.003724,36.6825,27.511875,openroute
+UPMC Passavant,UPMC Mercy,UPMC Passavant,40.573319,-80.014525,UPMC Mercy,40.436137,-79.985285,27.249833333333335,20.437375000000003,openroute
+UPMC Passavant,UPMC Presbyterian,UPMC Passavant,40.573319,-80.014525,UPMC Presbyterian,40.441544,-79.959356,30.840666666666667,23.130499999999998,openroute
+UPMC Passavant,Allegheny General Hospital,UPMC Passavant,40.573319,-80.014525,Allegheny General Hospital,40.45701,-80.003724,23.444833333333335,17.583625,openroute
+UPMC Shadyside,UPMC Mercy,UPMC Shadyside,40.454845,-79.939793,UPMC Mercy,40.436137,-79.985285,7.416833333333333,5.562625,openroute
+UPMC Shadyside,UPMC Presbyterian,UPMC Shadyside,40.454845,-79.939793,UPMC Presbyterian,40.441544,-79.959356,3.721166666666667,2.790875,openroute
+UPMC Shadyside,Allegheny General Hospital,UPMC Shadyside,40.454845,-79.939793,Allegheny General Hospital,40.45701,-80.003724,13.436166666666667,10.077125,openroute
+UPMC St. Margaret's,UPMC Mercy,UPMC St. Margaret's,40.489286,-79.895994,UPMC Mercy,40.436137,-79.985285,19.851499999999998,14.888625,openroute
+UPMC St. Margaret's,UPMC Presbyterian,UPMC St. Margaret's,40.489286,-79.895994,UPMC Presbyterian,40.441544,-79.959356,16.156,12.116999999999999,openroute
+UPMC St. Margaret's,Allegheny General Hospital,UPMC St. Margaret's,40.489286,-79.895994,Allegheny General Hospital,40.45701,-80.003724,18.016333333333332,13.51225,openroute
+UPMC East,UPMC Mercy,UPMC East,40.436561,-79.760197,UPMC Mercy,40.436137,-79.985285,27.949833333333334,20.962375,openroute
+UPMC East,UPMC Presbyterian,UPMC East,40.436561,-79.760197,UPMC Presbyterian,40.441544,-79.959356,26.4445,19.833375,openroute
+UPMC East,Allegheny General Hospital,UPMC East,40.436561,-79.760197,Allegheny General Hospital,40.45701,-80.003724,34.3955,25.796625,openroute
+Allegheny Valley Hospital,UPMC Mercy,Allegheny Valley Hospital,40.619129,-79.737849,UPMC Mercy,40.436137,-79.985285,45.174499999999995,33.880874999999996,openroute
+Allegheny Valley Hospital,UPMC Presbyterian,Allegheny Valley Hospital,40.619129,-79.737849,UPMC Presbyterian,40.441544,-79.959356,41.478833333333334,31.109125,openroute
+Allegheny Valley Hospital,Allegheny General Hospital,Allegheny Valley Hospital,40.619129,-79.737849,Allegheny General Hospital,40.45701,-80.003724,43.339166666666664,32.504374999999996,openroute
+Forbes Regional Hospital,UPMC Mercy,Forbes Regional Hospital,40.427585,-79.747217,UPMC Mercy,40.436137,-79.985285,30.208166666666667,22.656125,openroute
+Forbes Regional Hospital,UPMC Presbyterian,Forbes Regional Hospital,40.427585,-79.747217,UPMC Presbyterian,40.441544,-79.959356,28.702833333333334,21.527125,openroute
+Forbes Regional Hospital,Allegheny General Hospital,Forbes Regional Hospital,40.427585,-79.747217,Allegheny General Hospital,40.45701,-80.003724,36.65383333333333,27.490375,openroute
+West Penn Hospital,UPMC Mercy,West Penn Hospital,40.461453,-79.946364,UPMC Mercy,40.436137,-79.985285,7.878166666666667,5.908625000000001,openroute
+West Penn Hospital,UPMC Presbyterian,West Penn Hospital,40.461453,-79.946364,UPMC Presbyterian,40.441544,-79.959356,4.1825,3.136875,openroute
+West Penn Hospital,Allegheny General Hospital,West Penn Hospital,40.461453,-79.946364,Allegheny General Hospital,40.45701,-80.003724,11.751666666666667,8.81375,openroute
+VA Pittsburgh Hospital,UPMC Mercy,VA Pittsburgh Hospital,40.447391,-79.959788,UPMC Mercy,40.436137,-79.985285,5.551833333333334,4.163875,openroute
+VA Pittsburgh Hospital,UPMC Presbyterian,VA Pittsburgh Hospital,40.447391,-79.959788,UPMC Presbyterian,40.441544,-79.959356,2.4923333333333333,1.86925,openroute
+VA Pittsburgh Hospital,Allegheny General Hospital,VA Pittsburgh Hospital,40.447391,-79.959788,Allegheny General Hospital,40.45701,-80.003724,10.622666666666667,7.9670000000000005,openroute
+Heritage Valley Hospital,UPMC Mercy,Heritage Valley Hospital,40.543454,-80.177601,UPMC Mercy,40.436137,-79.985285,35.15333333333333,26.364999999999995,openroute
+Heritage Valley Hospital,UPMC Presbyterian,Heritage Valley Hospital,40.543454,-80.177601,UPMC Presbyterian,40.441544,-79.959356,38.604,28.953,openroute
+Heritage Valley Hospital,Allegheny General Hospital,Heritage Valley Hospital,40.543454,-80.177601,Allegheny General Hospital,40.45701,-80.003724,31.348333333333336,23.51125,openroute
+Jefferson Regional Hospital,UPMC Mercy,Jefferson Regional Hospital,40.31844,-79.933488,UPMC Mercy,40.436137,-79.985285,16.563857952075864,13.80321496006322,haversine
+Jefferson Regional Hospital,UPMC Presbyterian,Jefferson Regional Hospital,40.31844,-79.933488,UPMC Presbyterian,40.441544,-79.959356,16.635358497273597,13.862798747727998,haversine
+Jefferson Regional Hospital,Allegheny General Hospital,Jefferson Regional Hospital,40.31844,-79.933488,Allegheny General Hospital,40.45701,-80.003724,19.82002822789306,16.516690189910886,haversine
+Ohio Valley Hospital,UPMC Mercy,Ohio Valley Hospital,40.472755,-80.090742,UPMC Mercy,40.436137,-79.985285,11.769495707425175,9.80791308952098,haversine
+Ohio Valley Hospital,UPMC Presbyterian,Ohio Valley Hospital,40.472755,-80.090742,UPMC Presbyterian,40.441544,-79.959356,13.974437426601398,11.645364522167831,haversine
+Ohio Valley Hospital,Allegheny General Hospital,Ohio Valley Hospital,40.472755,-80.090742,Allegheny General Hospital,40.45701,-80.003724,9.08020023425976,7.5668335285497985,haversine
+St Clair Hospital,UPMC Mercy,St Clair Hospital,40.378099,-80.06661,UPMC Mercy,40.436137,-79.985285,19.043833333333335,14.282875000000002,openroute
+St Clair Hospital,UPMC Presbyterian,St Clair Hospital,40.378099,-80.06661,UPMC Presbyterian,40.441544,-79.959356,21.413666666666664,16.060249999999996,openroute
+St Clair Hospital,Allegheny General Hospital,St Clair Hospital,40.378099,-80.06661,Allegheny General Hospital,40.45701,-80.003724,19.745,14.80875,openroute
+Health South Rehab Sewickly,UPMC Mercy,Health South Rehab Sewickly,40.576315,-80.203135,UPMC Mercy,40.436137,-79.985285,45.109,33.83175,openroute
+Health South Rehab Sewickly,UPMC Presbyterian,Health South Rehab Sewickly,40.576315,-80.203135,UPMC Presbyterian,40.441544,-79.959356,48.69983333333333,36.524875,openroute
+Health South Rehab Sewickly,Allegheny General Hospital,Health South Rehab Sewickly,40.576315,-80.203135,Allegheny General Hospital,40.45701,-80.003724,41.303999999999995,30.977999999999994,openroute
+Southwood Psychatric Hospital,UPMC Mercy,Southwood Psychatric Hospital,40.321195,-80.112625,UPMC Mercy,40.436137,-79.985285,20.069109804470514,16.724258170392094,haversine
+Southwood Psychatric Hospital,UPMC Presbyterian,Southwood Psychatric Hospital,40.321195,-80.112625,UPMC Presbyterian,40.441544,-79.959356,22.37357309556132,18.644644246301098,haversine
+Southwood Psychatric Hospital,Allegheny General Hospital,Southwood Psychatric Hospital,40.321195,-80.112625,Allegheny General Hospital,40.45701,-80.003724,21.234737182171756,17.695614318476462,haversine
+Lifecare Hospital of Monroville,UPMC Mercy,Lifecare Hospital of Monroville,40.424369,-79.745967,UPMC Mercy,40.436137,-79.985285,31.064833333333336,23.298625,openroute
+Lifecare Hospital of Monroville,UPMC Presbyterian,Lifecare Hospital of Monroville,40.424369,-79.745967,UPMC Presbyterian,40.441544,-79.959356,29.5595,22.169625,openroute
+Lifecare Hospital of Monroville,Allegheny General Hospital,Lifecare Hospital of Monroville,40.424369,-79.745967,Allegheny General Hospital,40.45701,-80.003724,37.5105,28.132875000000002,openroute
+Health South  Harmaville Rehabilitaiton,UPMC Mercy,Health South  Harmaville Rehabilitaiton,40.536213,-79.849228,UPMC Mercy,40.436137,-79.985285,28.962333333333333,21.72175,openroute
+Health South  Harmaville Rehabilitaiton,UPMC Presbyterian,Health South  Harmaville Rehabilitaiton,40.536213,-79.849228,UPMC Presbyterian,40.441544,-79.959356,25.266666666666666,18.95,openroute
+Health South  Harmaville Rehabilitaiton,Allegheny General Hospital,Health South  Harmaville Rehabilitaiton,40.536213,-79.849228,Allegheny General Hospital,40.45701,-80.003724,27.127166666666668,20.345375,openroute
+Lifecare Hospital of PGH Suburban,UPMC Mercy,Lifecare Hospital of PGH Suburban,40.494569,-80.060335,UPMC Mercy,40.436137,-79.985285,17.306333333333335,12.979750000000001,openroute
+Lifecare Hospital of PGH Suburban,UPMC Presbyterian,Lifecare Hospital of PGH Suburban,40.494569,-80.060335,UPMC Presbyterian,40.441544,-79.959356,20.177,15.13275,openroute
+Lifecare Hospital of PGH Suburban,Allegheny General Hospital,Lifecare Hospital of PGH Suburban,40.494569,-80.060335,Allegheny General Hospital,40.45701,-80.003724,15.7235,11.792625000000001,openroute
