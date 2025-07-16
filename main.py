@@ -28,6 +28,9 @@ SETTINGS = {
         'Random Times': True,
         'Random LVO': True,
         'Compare Times vs. LVO': False,
+        #Simulation time of 597.8173010349274 seconds for 1000 sets
+        #Simulation time of 58.652158975601196 seconds for 100 sets
+        # Simulation time of 0.9114828109741211 seconds for 1 set
         'evals per set': 1000,
         'Results': [],
         'current_set_counter': 0
@@ -439,8 +442,9 @@ def run():
     setup_output_file(OUTPUT_FILE)
     for argument_set in arguments:
         run_argument_set(argument_set)
+    
     # Save to CSV
-    output_file = 'output/output.csv'
+    output_file = 'output/output_1-simulations.csv'
     df_output.to_csv(output_file, index=False)
     print("wrote df_output to csv file")  
 
