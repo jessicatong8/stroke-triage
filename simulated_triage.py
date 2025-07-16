@@ -22,32 +22,36 @@ print(simulated_triage.columns)
 
 
 # calculate color for strokes by how close to 50% the transport decision is (decision confidence)
+
 def get_color(row):
     comp = row['Percent Comprehensive']
     drip = row['Percent Drip and Ship']
 
-    if comp > drip:
-        base_color = np.array([255, 0, 0])  # red
-        strength = comp
+    # Use percent comprehensive as the decision score (between 0 and 100)
+    score = comp
+
+    if score <= 50:
+        # Interpolate between blue and purple
+        ratio = score / 50
+        color_start = np.array([0, 195, 255])     # Blue
+        color_end = np.array([200, 0, 255])     # Purple
     else:
-        base_color = np.array([0, 0, 255])  # blue
-        strength = drip
+        # Interpolate between purple and red
+        ratio = (score - 50) / 50
+        color_start = np.array([200, 0, 255])   # Purple
+        color_end = np.array([255, 0, 0])       # Red
 
-    intensity = (strength - 50) / 50
-    intensity = np.clip(intensity, 0, 1)
-
-    white = np.array([255, 255, 255])
-    final_color = (1 - intensity) * white + intensity * base_color
+    final_color = (1 - ratio) * color_start + ratio * color_end
     final_color = final_color.astype(int)
 
-    # Convert to hex string
     return f'#{final_color[0]:02x}{final_color[1]:02x}{final_color[2]:02x}'
+
 
 # Apply color to simulated strokes
 simulated_triage['hex_color'] = simulated_triage.apply(get_color, axis=1)
 
 
-# color for hospital
+#color for hospital
 
 # Default hospital color is blue
 hospitals['hex_color'] = '#0000FF'  
@@ -68,7 +72,7 @@ else:
 m = folium.Map(location=[center_lat, center_lon], zoom_start=11)
 
 # Create feature groups for toggling layers
-triage_layer = folium.FeatureGroup(name='Simulated Triage')
+triage_layer = folium.FeatureGroup(name='Simulated Stroke Patients')
 hospital_layer = folium.FeatureGroup(name='Hospitals')
 
 # Add simulated triage points as colored circles
@@ -78,6 +82,9 @@ for _, row in simulated_triage.iterrows():
         lon = row['longitude']
         comp = row['Percent Comprehensive']
         drip = row['Percent Drip and Ship']
+        CSC_time = row['CSC_travel_time_minutes']
+        PSC_time = row['PSC_travel_time_minutes']
+        transfer_time = row['transfer_time']
         hex_color = row['hex_color']
 
         folium.CircleMarker(
@@ -87,7 +94,8 @@ for _, row in simulated_triage.iterrows():
             fill=True,
             fill_color=hex_color,
             fill_opacity=0.7,
-            popup=f"Comp: {comp:.1f}%, Drip: {drip:.1f}%",
+            popup = f"Comprehensive: {comp:.1f}%<br>Drip and ship: {drip:.1f}%<br>CSC travel time: {CSC_time:.0f} min<br>PSC travel time: {PSC_time:.0f} min"
+            # popup = f"Comprehensive: {comp:.1f}%<br>Drip and ship: {drip:.1f}%<br>CSC travel time: {CSC_time:.1f}<br>PSC travel time: {PSC_time:.1f}<br>transfer time: {transfer_time:.1f} <br>lat: {lat} <br>long: {lon}"
         ).add_to(triage_layer)
         # print("success")
         
@@ -97,17 +105,17 @@ for _, row in simulated_triage.iterrows():
         print(f"Skipping row due to unexpected error: {e}")
 
 for _, row in hospitals.iterrows():
-    folium.RegularPolygonMarker(
-        location=[row['latitude'], row['longitude']],
-        number_of_sides=4,
-        radius=6, 
-        rotation=45,
-        color='black',
-        fill=True,
-        fill_color=row['hex_color'],
-        fill_opacity=1,
-        popup=row.get('Facility', 'Hospital'),
-    ).add_to(hospital_layer)
+    color = ""
+    if row['hex_color'] == '#0000FF':
+        color = "blue"
+    else:
+        color = "red"
+    folium.Marker(
+    location=[row['latitude'], row['longitude']],
+    icon=folium.Icon(icon="plus-square", prefix="fa", color=color),
+    popup=row.get('Facility', 'Hospital'),
+).add_to(hospital_layer)
+
 
 # Add layers to map
 triage_layer.add_to(m)
@@ -118,10 +126,13 @@ folium.LayerControl().add_to(m)
 
 
 # Show map in Streamlit
-st_folium(m, width=800, height=600)
+st.set_page_config(layout="wide")
+
+st_folium(m, width=1000, height=800)
 
 
-# --- (Optional) Your travel times section unchanged ---
+"""Travel times"""
+"""
 travel_times_file = 'EMS-data/travel_times.csv'
 closest_primary_file = 'EMS-data/closest_primary_hospitals.csv'
 closest_comprehensive_file = 'EMS-data/closest_comprehensive_hospitals.csv'
@@ -169,3 +180,4 @@ else:
     st.write("- closest_comprehensive_hospitals.csv")
     st.write("To generate travel time data:")
     st.code("python preprocess_travel_times.py", language="bash")
+"""
