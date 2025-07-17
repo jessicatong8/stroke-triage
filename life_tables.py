@@ -3,13 +3,14 @@ CDC 2013 life tables
 '''
 import math
 import constants
+import numpy as np
 
 class LifeTables(object):
     '''
     Table[x] defines the probability of dying between ages [x] and [x+1]
     '''
     p_death = {
-        constants.Sex.MALE: [
+        constants.Sex.MALE: np.array([
             0.006514, 0.000463, 0.000289, 0.000209, 0.000180, 0.000165,
             0.000148, 0.000132, 0.000115, 0.000099, 0.000090, 0.000097,
             0.000130, 0.000196, 0.000289, 0.000386, 0.000486, 0.000605,
@@ -27,9 +28,9 @@ class LifeTables(object):
             0.087905, 0.098958, 0.110149, 0.122333, 0.135536, 0.149773,
             0.165040, 0.181318, 0.198565, 0.216721, 0.235701, 0.255399,
             0.275691, 0.296433, 0.317468, 0.338631, 1.000000
-        ],
+        ]),
 
-        constants.Sex.FEMALE: [
+        constants.Sex.FEMALE: np.array([
             0.005374, 0.000379, 0.000219, 0.000162, 0.000136, 0.000124,
             0.000110, 0.000100, 0.000094, 0.000091, 0.000093, 0.000100,
             0.000114, 0.000135, 0.000162, 0.000193, 0.000225, 0.000261,
@@ -47,7 +48,7 @@ class LifeTables(object):
             0.066285, 0.074167, 0.083469, 0.093753, 0.105076, 0.117487,
             0.131021, 0.145700, 0.161528, 0.178486, 0.196532, 0.215597,
             0.235585, 0.256372, 0.277812, 0.299734, 1.000000
-        ]
+        ])
     }
 
     @staticmethod
@@ -56,7 +57,7 @@ class LifeTables(object):
         Adjust by increased risk of mortality
         '''
         prob_unadjusted = LifeTables.p_death[sex][age]
-        rate_unadjusted = -1 * math.log(1 - prob_unadjusted)
-        rate_adjusted = rate_unadjusted * adjustment
-        prob_adjusted = 1 - math.exp(-rate_adjusted)
+        rate_unadjusted = -1 * np.log(1 - prob_unadjusted)
+        rate_adjusted = rate_unadjusted[:,None] * adjustment[None,:]
+        prob_adjusted = 1 - np.exp(-rate_adjusted)
         return prob_adjusted
