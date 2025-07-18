@@ -10,6 +10,8 @@ import tqdm
 import pandas as pd
 import numpy as np
 
+import input_patients
+
 '''
 
 For default probabilistic model, turn on random times and
@@ -31,7 +33,7 @@ SETTINGS = {
         #Simulation time of 597.8173010349274 seconds for 1000 sets
         #Simulation time of 58.652158975601196 seconds for 100 sets
         # Simulation time of 0.9114828109741211 seconds for 1 set
-        'evals per set': 1000,
+        'evals per set': 100,
         'Results': [],
         'current_set_counter': 0
     },
@@ -147,8 +149,11 @@ def read_input_file():
 
     return strategies
 
+
+input_patients.set_input_patients("female", 70, 9, 120, 'input/RACE9.csv')
+
 # set up data frames for input patients and writing output, these maintain location information
-df_input = pd.read_csv('input/scenarios.csv')
+df_input = pd.read_csv('input/RACE9.csv')
 # df_input = df_input.sample(n=10, random_state=47)
 df_output = df_input.copy(deep=True)
 df_output['Percent Primary'] = np.nan
@@ -169,7 +174,10 @@ def read_input_file_new():
     # print(len(strategies))
     return strategies
 
-
+def output_to_csv(output_file):
+ # Save to CSV
+    df_output.to_csv(output_file, index=False)
+    print(f"wrote df_output to {output_file}")  
 
 def print_model_output(results, arguments):
     for item in INPUT_VARIABLES:
@@ -443,10 +451,7 @@ def run():
     for argument_set in arguments:
         run_argument_set(argument_set)
     
-    # Save to CSV
-    output_file = 'output/output_1-simulations.csv'
-    df_output.to_csv(output_file, index=False)
-    print("wrote df_output to csv file")  
+    output_to_csv('output/RACE9.csv')
 
 
 if __name__ == '__main__':
