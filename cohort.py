@@ -1,7 +1,7 @@
 import math
 import constants
 from life_tables import LifeTables
-
+import numpy as np
 
 class Population(object):
     '''
@@ -29,9 +29,10 @@ class Population(object):
         self.simtype = simtype
         self.states_in_markov = self.break_into_states()
         self.states = self.run_markov(self.states_in_markov,
-                                      Population.start_age, Population.sex)
+                                      Population.start_age, Population.sex,
+                                      num_years=None if Population.horizon == 'lifetime' else int(Population.horizon))
         self.qalys_per_year = get_qalys(self.states)
-        get_costs_per_year(self.costs_per_year, self.states)
+        self.costs_per_year = get_costs_per_year(self.states)
         self.qalys = simpsons_1_3rd_correction(self.qalys_per_year,
                                                Population.horizon)
         self.costs = simpsons_1_3rd_correction(self.costs_per_year,
@@ -44,7 +45,7 @@ class Population(object):
         pop_hemorrhagic = call_population * constants.p_call_is_hemorrhagic()
         pop_ischemic = call_population - pop_mimic - pop_hemorrhagic
 
-        states = [0 for enum in range(constants.States.NUMBER_OF_STATES)]
+        states = np.zeros(constants.States.NUMBER_OF_STATES)
         # We assume that mimics are at gen pop (headache, migraine, etc.)
         states[constants.States.GEN_POP] += pop_mimic
 
@@ -52,12 +53,9 @@ class Population(object):
         # remember to adjust for population of ischemic patients when
         # adding into state matrix
 
-        mrs_of_ais = constants.break_up_ais_patients(
-            self.ais_outcomes['p_good'], Population.NIHSS)
-        states_ischemic = [
-            pop_ischemic * mrs_of_ais[i]
-            for i in range(constants.States.NUMBER_OF_STATES)
-        ]
+        mrs_of_ais = np.array(constants.break_up_ais_patients(
+            self.ais_outcomes['p_good'], Population.NIHSS))
+        states_ischemic = pop_ischemic * mrs_of_ais
 
         # Now we need the mRS breakdown for patients with hemorrhagic strokes
         # Currently making the conservative estimate that there is no
@@ -67,10 +65,7 @@ class Population(object):
         # This estimate also adjusts hemorrhagic stroke outcomes based on
         # time to center.
 
-        states_hemorrhagic = [
-            pop_hemorrhagic * mrs_of_ais[i]
-            for i in range(constants.States.NUMBER_OF_STATES)
-        ]
+        states_hemorrhagic = pop_hemorrhagic * mrs_of_ais
 
         # Add on first year costs
         baseline_year_one_costs = constants.first_year_costs(
@@ -84,64 +79,80 @@ class Population(object):
             pop_ischemic)
         self.costs_per_year.append(baseline_year_one_costs)
 
-        states = [
+        states = np.array([
             states[i] + states_ischemic[i] + states_hemorrhagic[i]
             for i in range(constants.States.NUMBER_OF_STATES)
-        ]
+        ])
 
         return states
 
-    def run_markov(self, states, start_age, sex):
+    def run_markov(self, states, start_age, sex, num_years=None):
         '''
         import a list of states at each year from start to age 100
         '''
-        current_state = states
-        start_of_cycles = []
-        current_age = start_age
-        while current_age < 100:
-            start_of_cycles.append([i for i in current_state])
+        age_arr = np.arange(start_age, start_age + num_years if num_years else 100)
+        mrs_range = np.arange(constants.States.DEATH)
+        all_states = np.zeros((len(age_arr) + 1, len(mrs_range) + 1))
+        all_states[0] = states
+        # current_age = start_age
+        hazard_morts = constants.hazard_mort(mrs_range)
+        p_dead_arr = LifeTables.adjusted_mortality(
+                    sex, age_arr, hazard_morts)
+        for i, p_dead in enumerate(p_dead_arr):
+            # all_states.append(current_state)
             # We run a range up to death because we don't want to include death
             # since it only markovs to itself
-            for mrs in range(constants.States.DEATH):
-                p_dead = LifeTables.adjusted_mortality(
-                    sex, current_age, constants.hazard_mort(mrs))
-                current_state[constants.States.DEATH] += current_state[
-                    mrs] * p_dead
-                current_state[mrs] -= current_state[mrs] * p_dead
-            current_age += 1
+            
+            death_probs = (all_states[i,:-1] * p_dead)
+            all_states[i + 1,:-1] = all_states[i,:-1] - death_probs
+            all_states[i + 1, -1] = all_states[i, -1] + death_probs.sum()
+            # for mrs in range(constants.States.DEATH):
+            #     p_dead = LifeTables.adjusted_mortality(
+            #         sex, current_age, constants.hazard_mort(mrs))
+            #     current_state[constants.States.DEATH] += current_state[
+            #         mrs] * p_dead
+            #     current_state[mrs] -= current_state[mrs] * p_dead
+            # current_age += 1
         # Add on final age
-        start_of_cycles.append([i for i in current_state])
-        return start_of_cycles
+        # all_states.append(current_state)
+        return all_states
 
 
-def get_costs_per_year(costs_per_year, states):
+def get_costs_per_year(states):
     continuous_discount = 0.03
-    discreet_discount = math.exp(continuous_discount) - 1
-    for cycle, state in enumerate(states):
-        # We added on cycle 0, first year, costs during the markov model since
-        # it's dependent on hemorrhagic vs. ischemic
-        if cycle == 0:
-            continue
-        else:
-            costs = constants.annual_cost(state)
-            costs /= ((1 + discreet_discount)**(cycle))
-            costs_per_year.append(costs)
+    discreet_discount = np.pow(np.exp(continuous_discount), np.arange(states.shape[0]))
+    costs_per_year = constants.annual_cost(states, axis=1) / discreet_discount
+    return costs_per_year[1:]
+    # for cycle, state in enumerate(states):
+    #     # We added on cycle 0, first year, costs during the markov model since
+    #     # it's dependent on hemorrhagic vs. ischemic
+    #     if cycle == 0:
+    #         continue
+    #     else:
+    #         costs = constants.annual_cost(state)
+    #         costs /= ((1 + discreet_discount)**(cycle))
+    #         costs_per_year.append(costs)
 
 
 def get_qalys(states):
     '''
+    states: numpy matrix where each row corresponds to a year and each column
+    is a probability of being in the given mrs state.
+    
     Returns an array of discounted quality-adjusted life-years at each year
     '''
     continuous_discount = 0.03
-    discreet_discount = math.exp(continuous_discount) - 1
-    qalys = []
-    for cycle, state in enumerate(states):
-        qaly = 0
-        for mrs in range(constants.States.DEATH):
-            qaly += state[mrs] * constants.utilities_mrs(mrs)
-        # Discount
-        qaly /= ((1 + discreet_discount)**(cycle))
-        qalys.append(qaly)
+    discreet_discount = np.pow(np.exp(continuous_discount), np.arange(states.shape[0]))
+    mrs_utilities = np.array([constants.utilities_mrs(mrs) 
+                              for mrs in range(constants.States.DEATH)])
+    qalys = (states[:,:-1] * mrs_utilities).sum(axis=1) / discreet_discount
+    # for cycle, state in enumerate(states):
+    #     qaly = 0
+    #     for mrs in range(constants.States.DEATH):
+    #         qaly += state[mrs] * constants.utilities_mrs(mrs)
+    #     # Discount
+    #     qaly /= ((1 + discreet_discount)**(cycle))
+    #     qalys.append(qaly)
 
     return qalys
 

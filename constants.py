@@ -6,6 +6,7 @@ analyses later.
 import enum
 import numpy.random as rng
 import inflation
+import numpy as np
 
 # These don't really match with the rest of the functions in the file but
 # it is probably the best place to put these enumerators
@@ -224,15 +225,15 @@ def break_up_ais_patients(p_good_outcome, NIHSS):
     return [genpop, mrs0, mrs1, mrs2, mrs3, mrs4, mrs5, mrs6]
 
 
-HAZARDS_MORTALITY = {
-    States.GEN_POP: 1,
-    States.MRS_0: 1.53,
-    States.MRS_1: 1.52,
-    States.MRS_2: 2.17,
-    States.MRS_3: 3.18,
-    States.MRS_4: 4.55,
-    States.MRS_5: 6.55
-}
+HAZARDS_MORTALITY = np.array([
+    1, # States.GEN_POP
+    1.53, # States.MRS_0
+    1.52, # States.MRS_1
+    2.17, # States.MRS_2
+    3.18, # States.MRS_3
+    4.55, # States.MRS_4
+    6.55 # States.MRS_5
+])
 
 
 def hazard_mort(mrs):
@@ -268,37 +269,37 @@ class Costs(object):
     TARGET_YEAR = inflation.Conversion.LAST_YEAR
 
     # 2014, Dewilde
-    DAYS_90_ISCHEMIC = {
-        States.GEN_POP: 0,
-        States.MRS_0: 6302,
-        States.MRS_1: 9448,
-        States.MRS_2: 14918,
-        States.MRS_3: 26218,
-        States.MRS_4: 32502,
-        States.MRS_5: 26071
-    }
+    DAYS_90_ISCHEMIC = np.array([
+        0, # States.GEN_POP
+        6302, # States.MRS_0
+        9448, # States.MRS_1
+        14918, # States.MRS_2
+        26218, # States.MRS_3
+        32502, # States.MRS_4
+        26071 # States.MRS_5
+    ])
 
     # 2008, Christensen
-    DAYS_90_ICH = {
-        States.GEN_POP: 0,
-        States.MRS_0: 9500,
-        States.MRS_1: 15500,
-        States.MRS_2: 18700,
-        States.MRS_3: 27400,
-        States.MRS_4: 27300,
-        States.MRS_5: 27300
-    }
+    DAYS_90_ICH = np.array([
+        0, # States.GEN_POP
+        9500, # States.MRS_0
+        15500, # States.MRS_1
+        18700, # States.MRS_2
+        27400, # States.MRS_3
+        27300, # States.MRS_4
+        27300 # States.MRS_5
+    ])
 
     # 2014, Dewilde
-    ANNUAL = {
-        States.GEN_POP: 0,
-        States.MRS_0: 2921,
-        States.MRS_1: 3905,
-        States.MRS_2: 6501,
-        States.MRS_3: 16922,
-        States.MRS_4: 42335,
-        States.MRS_5: 39723
-    }
+    ANNUAL = np.array([
+        0, # States.GEN_POP: 
+        2921, # States.MRS_0: 
+        3905, # States.MRS_1: 
+        6501, # States.MRS_2: 
+        16922, # States.MRS_3: 
+        42335, # States.MRS_4: 
+        39723 # States.MRS_5: 
+    ])
 
     # 2008, Christensen
     DEATH = 8100
@@ -314,13 +315,13 @@ class Costs(object):
 
     @staticmethod
     def inflate(TARGET_YEAR):
-        for state in Costs.DAYS_90_ISCHEMIC:
+        for state in range(len(Costs.DAYS_90_ISCHEMIC)):
             Costs.DAYS_90_ISCHEMIC[state] = (inflation.Conversion.run(
                 2014, TARGET_YEAR, Costs.DAYS_90_ISCHEMIC[state]))
-        for state in Costs.DAYS_90_ICH:
+        for state in range(len(Costs.DAYS_90_ICH)):
             Costs.DAYS_90_ICH[state] = (inflation.Conversion.run(
                 2008, TARGET_YEAR, Costs.DAYS_90_ICH[state]))
-        for state in Costs.ANNUAL:
+        for state in range(len(Costs.ANNUAL)):
             Costs.ANNUAL[state] = (inflation.Conversion.run(
                 2014, TARGET_YEAR, Costs.ANNUAL[state]))
         Costs.DEATH = inflation.Conversion.run(2008, TARGET_YEAR, Costs.DEATH)
@@ -359,7 +360,9 @@ def first_year_costs(states_hemorrhagic, states_ischemic):
     return sum(cost_hemorrhagic) + sum(cost_ischemic)
 
 
-def annual_cost(states):
-    cost = sum([states[i] * Costs.ANNUAL[i] for i in range(States.DEATH)])
-    cost += states[States.DEATH] * Costs.DEATH
-    return cost
+def annual_cost(states, axis=0):
+    return (np.take(states, np.arange(states.shape[axis] - 1), axis=axis) * 
+            Costs.ANNUAL).sum(axis=axis) + np.take(states, States.DEATH, axis=axis) * Costs.DEATH
+    # cost = sum([states[i] * Costs.ANNUAL[i] for i in range(States.DEATH)])
+    # cost += states[States.DEATH] * Costs.DEATH
+    # return cost

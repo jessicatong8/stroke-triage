@@ -63,7 +63,7 @@ SETTINGS = {
     # Input either 'lifetime' or a string for the number of years
     # post-stroke to base the decision on.
     # Note, MUST BE STRING, i.e. '1' not 1
-    'Horizon': 'lifetime'
+    'Horizon': '10'
 }
 
 if not os.path.isdir('output'):
@@ -340,7 +340,7 @@ def run_model(arguments):
         strategies = STRATEGIES
     for strategy in strategies:
         ischemic_outcomes = ais_model.get_ais_outcomes(strategy)
-        # print(ischemic_outcomes)
+        # print(ischemic_outcomes, strategy)
         results['p_good'][strategy] = ischemic_outcomes['p_good']
         results['p_tpa'][strategy] = ischemic_outcomes['p_tpa']
         results['p_evt'][strategy] = ischemic_outcomes['p_evt']
