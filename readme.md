@@ -10,6 +10,8 @@ _Ali A, Zachrison KS, Eschenfeldt PC, Schwamm LH, Hur C_
 
 To enable real-time interaction for the web visualization, an XGboost model was used to predict the mathematical model's outputs.
 
+See live interactive web visualization here: [jessicatong8-stroke-triage-visualization-npcvtz.streamlit.app/](https://jessicatong8-stroke-triage-visualization-npcvtz.streamlit.app/)
+
 ## Setup
 
 1. Install dependencies:
