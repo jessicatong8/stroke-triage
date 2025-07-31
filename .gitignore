@@ -1,5 +1,8 @@
-# Results files
-output/*
+# # Results files
+# output/*
+
+# venv
+.venv/
 
 # Because parters likes dropbox and so do we
 .dropbox
