@@ -108,7 +108,9 @@ OUTPUT_VARIABLES = [
 ]
 # For now ...
 PROBABILITY_MODEL_OUTPUT = [
-    'Percent Primary', 'Percent Comprehensive', 'Percent Drip and Ship',
+    'Percent Primary', 'Percent Comprehensive', 'Percent Drip and Ship', 
+    'QALYS Primary', 'QALYs Comprehensive', 'QALYs Drip and Ship', 
+    'Costs Primary', 'Costs Comprehensive', 'Costs Drip and Ship',
     'Horizon'
 ]
 
@@ -123,8 +125,8 @@ PROBABILITY_MODEL_OUTPUT_COMPARISON = [
 STRATEGIES = ['Primary', 'Comprehensive', 'Drip and Ship']
 
 
-def read_input_file():
-    f = open('input/scenarios_default.csv', 'r')
+def read_input_file(filename):
+    f = open(filename, 'r')
     # Parse header
     f.readline()
     strategies = []
@@ -145,20 +147,17 @@ def read_input_file():
         strategy['time_to_comprehensive'] = float(values[6])
         strategy['transfer_time'] = float(values[7])
         strategies.append(strategy)
-        print(strategies)
 
     return strategies
 
 
-input_patients.set_input_patients("female", 70, 9, 120, 'input/RACE9.csv')
 
-# set up data frames for input patients and writing output, these maintain location information
-df_input = pd.read_csv('input/RACE9.csv')
-# df_input = df_input.sample(n=10, random_state=47)
-df_output = df_input.copy(deep=True)
-df_output['Percent Primary'] = np.nan
-df_output['Percent Comprehensive'] = np.nan
-df_output['Percent Drip and Ship'] = np.nan
+# Added the following "new" functions to set up data frames for input patients and writing outputs that maintain patient location information 
+# for running the simulation with real EMS data and hospital locations in Allegheny County
+
+df_input = None
+df_output = None
+filename = ""
 
 def read_input_file_new():
 
@@ -169,15 +168,20 @@ def read_input_file_new():
             strat['sex'] = constants.Sex.FEMALE
         else:
             strat['sex'] = constants.Sex.MALE
-
-    # print(strategies)
-    # print(len(strategies))
     return strategies
 
-def output_to_csv(output_file):
- # Save to CSV
+def setup_output_file_new():
+    df_output = df_input.copy(deep=True)
+    df_output['Percent Primary'] = np.nan
+    df_output['Percent Comprehensive'] = np.nan
+    df_output['Percent Drip and Ship'] = np.nan
+    return df_output
+
+
+def output_to_csv_new(output_file):
     df_output.to_csv(output_file, index=False)
     print(f"wrote df_output to {output_file}")  
+
 
 def print_model_output(results, arguments):
     for item in INPUT_VARIABLES:
@@ -206,8 +210,10 @@ def print_probabilistic_model_output(arguments):
     p_good = {}
     p_tpa = {}
     p_evt = {}
+    QALYs = {}
+    Costs = {}
     
-
+    # added this code to track intermediate outputs
     for strategy in STRATEGIES:
         if comparison:
             percents[strategy] = [0, 0, 0]
@@ -216,42 +222,42 @@ def print_probabilistic_model_output(arguments):
             p_good[strategy] = 0
             p_tpa[strategy] = 0
             p_evt[strategy] = 0
+            QALYs[strategy] = 0
+            Costs[strategy] = 0
 
 
     multiplier = 1 / SETTINGS['Probabilistic Model']['evals per set'] * 100
 
-    # pt_counter = 0
     for result in SETTINGS['Probabilistic Model']['Results']:
         if comparison:
             percents[result[0]['Optimal Location']][0] += multiplier
             percents[result[1]['Optimal Location']][1] += multiplier
             percents[result[2]['Optimal Location']][2] += multiplier
         else:
+             # added this code to track intermediate outputs
             for strategy in STRATEGIES:
                 p_good[strategy] += result['p_good'][strategy]
                 p_tpa[strategy] += result['p_tpa'][strategy]
                 p_evt[strategy] += result['p_evt'][strategy]
-            # p_good[strategy] += result['p_good'][strategy]
-            # print(result['p_good'][strategy])
-            # print(p_good[strategy])
+                QALYs[strategy] += result['QALYs'][strategy]
+                Costs[strategy] += result['Costs'][strategy]
+
+
             percents[result['Optimal Location']] += multiplier
-        # print(pt_counter)
-        # print(percents)
-        # # df_output[df_output.loc[df_output.index[pt_counter], 'col2']]
-        # pt_counter += 1
-    
-    # for strategy in p_good:
-    #     p_good[strategy] =  float(round(p_good[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
-    # for strategy in p_tpa:
-    #     p_tpa[strategy] =  float(round(p_tpa[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+   
+    # added this code to track intermediate outputs (averaged across 1000 simulations)
+    for strategy in p_good:
+        p_good[strategy] =  float(round(p_good[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+    for strategy in p_tpa:
+        p_tpa[strategy] =  float(round(p_tpa[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+    for strategy in p_evt:
+        p_evt[strategy] =  float(round(p_evt[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+    for strategy in QALYs:
+        QALYs[strategy] =  float(round(QALYs[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
+    for strategy in Costs:
+        Costs[strategy] =  float(round(Costs[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
 
-    # for strategy in p_evt:
-    #     p_evt[strategy] =  float(round(p_evt[strategy]/SETTINGS['Probabilistic Model']['evals per set'],2))
 
-
-    # print("p_good_outcome: ", p_good)
-    # print("p_tpa: ", p_tpa)
-    # print("p_EVT: ", p_evt)
 
     if comparison:
         for strategy in STRATEGIES:
@@ -263,17 +269,24 @@ def print_probabilistic_model_output(arguments):
     else:
         for strategy in STRATEGIES:
             OUTPUT_FILE.write(str(percents[strategy]) + ',')
+        # added this code to write avg QALYs and Costs to output file
+        for strategy in STRATEGIES:
+            OUTPUT_FILE.write(str(QALYs[strategy]) + ',')
+        for strategy in STRATEGIES:
+            OUTPUT_FILE.write(str(Costs[strategy]) + ',')
+
+
     OUTPUT_FILE.write(SETTINGS['Horizon'] + '\n')
 
-    # a stupid way to match output with the correct row of the input df by finding the first NAN value, but it works
+    # # Uncomment to modeling with real EMS data and hospital locations in Allegheny County
+    # # Matches output with the correct row of the input df by finding the first NAN value, there is probably a better way to do this, but it works
 
-    first_nan_index = df_output['Percent Primary'].isna().idxmax()  # Gets the index of the first NaN
+    # first_nan_index = df_output['Percent Primary'].isna().idxmax()  # Gets the index of the first NaN
 
-    df_output.loc[first_nan_index, 'Percent Primary'] = percents['Primary']
-    df_output.loc[first_nan_index, 'Percent Comprehensive'] = percents['Comprehensive']
-    df_output.loc[first_nan_index, 'Percent Drip and Ship'] = percents['Drip and Ship']
+    # df_output.loc[first_nan_index, 'Percent Primary'] = percents['Primary']
+    # df_output.loc[first_nan_index, 'Percent Comprehensive'] = percents['Comprehensive']
+    # df_output.loc[first_nan_index, 'Percent Drip and Ship'] = percents['Drip and Ship']
 
-    # print(percents)
 
     # Prepare the probabilstic model results for the next set
     SETTINGS['Probabilistic Model']['Results'].clear()
@@ -429,6 +442,9 @@ def run_argument_set(argument_set):
 def run():
 
     global OUTPUT_FILE
+    global df_input
+    global df_output
+    global filename
 
     # Setup the inputs and the argument files.
 
@@ -444,14 +460,22 @@ def run():
             random_sets.create_random_sets(SETTINGS['Random Set Options'])
         )
     elif SETTINGS['Simulation Type'] == 'Input File':
-        OUTPUT_FILE = open('output/input_file_scenarios.csv', 'w')
-        arguments = tqdm.tqdm(read_input_file_new())
+        filename = "random_15000" # change this to set input and output csv filenames
+
+        # comment the following to use real data from Allegheny County
+        OUTPUT_FILE = open('output/' + filename + '.csv', 'w')
+        arguments = tqdm.tqdm(read_input_file('input/' + filename + '.csv')) 
+
+        ## Uncomment the following to use real data fro Allegheny County
+        # df_input = input_patients.set_input_patients("female", 70, 5, 120, 'input/'+ filename + '.csv') # change parameters to adjust input patient characteristics
+        # arguments = tqdm.tqdm(read_input_file_new())
+        # df_output = setup_output_file_new()
 
     setup_output_file(OUTPUT_FILE)
     for argument_set in arguments:
         run_argument_set(argument_set)
     
-    output_to_csv('output/RACE9.csv')
+    # output_to_csv_new('output/' + filename + '.csv')  # Uncomment the following to use real data fro Allegheny County
 
 
 if __name__ == '__main__':
